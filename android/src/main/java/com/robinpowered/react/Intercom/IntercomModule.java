@@ -2,6 +2,8 @@ package com.robinpowered.react.Intercom;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -24,9 +26,12 @@ import io.intercom.android.sdk.Intercom;
 import io.intercom.android.sdk.UserAttributes;
 import io.intercom.android.sdk.identity.Registration;
 import io.intercom.android.sdk.push.IntercomPushClient;
-import io.intercom.android.sdk.identity.AppIdentity;
 
 public class IntercomModule extends ReactContextBaseJavaModule {
+
+    private static final String E_INVALID_ARGS = "E_INVALID_ARGS";
+    private static final String E_NOT_INITIALIZED = "E_NOT_INITIALIZED";
+    private static final String E_ERROR = "E_ERROR";
 
     private static final String MODULE_NAME = "IntercomWrapper";
     public static final String TAG = "Intercom";
@@ -38,6 +43,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
     }
 
     @Override
+    @NonNull
     public String getName() {
         return MODULE_NAME;
     }
@@ -45,25 +51,37 @@ public class IntercomModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void registerIdentifiedUser(ReadableMap options, Promise promise) {
         try {
-            if (options.hasKey("email") && options.getString("email").length() > 0) {
+            Boolean hasEmail = options.hasKey("email") && options.getString("email").length() > 0;
+            Boolean hasUserId = options.hasKey("userId") && options.getString("userId").length() > 0;
+
+            String email = hasEmail ? options.getString("email") : null;
+            String userId = hasUserId ? options.getString("userId") : null;
+
+            if (email != null && userId != null) {
                 Intercom.client().registerIdentifiedUser(
-                        new Registration().withEmail(options.getString("email"))
+                        Registration.create().withUserId(userId).withEmail(email)
                 );
-                Log.i(TAG, "registerIdentifiedUser with userEmail");
+                Log.i(TAG, "registerIdentifiedUser with userId and email");
                 promise.resolve(null);
-            } else if (options.hasKey("userId") && options.getString("userId").length() > 0) {
+            } else if (userId != null) {
                 Intercom.client().registerIdentifiedUser(
-                        new Registration().withUserId(options.getString("userId"))
+                        Registration.create().withUserId(userId)
                 );
                 Log.i(TAG, "registerIdentifiedUser with userId");
                 promise.resolve(null);
+            } else if (email != null) {
+                Intercom.client().registerIdentifiedUser(
+                        Registration.create().withEmail(email)
+                );
+                Log.i(TAG, "registerIdentifiedUser with email");
+                promise.resolve(null);
             } else {
                 Log.e(TAG, "registerIdentifiedUser called with invalid userId or email");
-                promise.reject("Invalid userId or email");
+                promise.reject(E_INVALID_ARGS, "Invalid userId or email");
             }
         } catch (Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
@@ -78,7 +96,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
                 Log.e(TAG, "sendTokenToIntercom; getCurrentActivity() is null");
             }
         } catch(Exception e) {
-            promise.reject(e.toString());
+            promise.reject(E_ERROR, e.toString(), e);
         }
     }
 
@@ -90,7 +108,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch(Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
@@ -102,7 +120,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch(Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
@@ -115,7 +133,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch (Exception e) {
             Log.e(TAG, "updateUser - unable to deconstruct argument map");
-            promise.reject(e.toString());
+            promise.reject(E_INVALID_ARGS, e.toString());
         }
     }
 
@@ -133,7 +151,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch (Exception e) {
             Log.e(TAG, "logEvent - unable to deconstruct metaData");
-            promise.reject(e.toString());
+            promise.reject(E_INVALID_ARGS, e.toString());
         }
     }
 
@@ -144,7 +162,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch(Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
@@ -155,7 +173,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch(Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
@@ -166,7 +184,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch(Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
@@ -177,7 +195,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch(Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
@@ -188,7 +206,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch(Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
@@ -199,18 +217,18 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch(Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
     @ReactMethod
     public void displayConversationsList(Promise promise) {
         try {
-            Intercom.client().displayConversationsList();
+            Intercom.client().displayMessenger();
             promise.resolve(null);
         } catch(Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
@@ -223,7 +241,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(conversationCount);
         } catch (Exception ex) {
             Log.e(TAG, "logEvent - unable to get conversation count");
-            promise.reject(ex.toString());
+            promise.reject(E_NOT_INITIALIZED, ex.toString());
         }
     }
 
@@ -234,7 +252,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch(Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
@@ -255,7 +273,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
 
             promise.resolve(null);
         } catch (Exception ex) {
-            promise.reject(ex.toString());
+            promise.reject(E_ERROR, ex.toString());
         }
     }
 
@@ -268,7 +286,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
 
             promise.resolve(null);
         } catch (Exception ex) {
-            promise.reject(ex.toString());
+            promise.reject(E_ERROR, ex.toString());
         }
     }
 
@@ -280,7 +298,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
             promise.resolve(null);
         } catch(Exception e) {
             Log.e(TAG, "Intercom not initialized");
-            promise.reject(e.toString());
+            promise.reject(E_NOT_INITIALIZED, e.toString());
         }
     }
 
@@ -307,6 +325,7 @@ public class IntercomModule extends ReactContextBaseJavaModule {
                 builder.withUnsubscribedFromEmails((Boolean)value);
             } else if (key.equals("custom_attributes")) {
                 // value should be a Map here
+
                 builder.withCustomAttributes((Map)value);
             } else if (key.equals("companies")) {
                 ArrayList<Map<String, Object>> companyaArray =  (ArrayList<Map<String, Object>>)value;
