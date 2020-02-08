@@ -24,7 +24,7 @@ React Native wrapper for Intercom.io. Based off of [intercom-cordova](https://gi
 
 1. Manually Link the library in Xcode ([Linking librarys on iOS](https://facebook.github.io/react-native/docs/linking-libraries-ios.html))
 
-    1. Open Xcode -> Right click "[Your Project Name]/Libraries" folder and select "Add File to [Your Project Name]" -> Select `RNIntercom.xcodeproj` located in `node_modules/react-native-intercom/iOS`.
+    1. Open Xcode -> Right click "[Your Project Name]/Libraries" folder and select "Add File to [Your Project Name]" -> Select `RNIntercom.xcodeproj` located in `node_modules/react-native-intercom/ios`.
     1. Open "General Settings" -> "Build Phases" -> "Link Binary with Libraries" and add `libRNIntercom.a`
 
 1. Config for iOS ([intercom-ios](https://github.com/intercom/intercom-ios))
@@ -172,7 +172,7 @@ React Native wrapper for Intercom.io. Based off of [intercom-cordova](https://gi
             ```
 
             II. Then add the following code to `android/app/src/main/AndroidManifest.xml`:
-            
+
             ```xml
             <?xml version="1.0" encoding="utf-8"?>
             <manifest package="com.YOUR_APP"
@@ -287,7 +287,7 @@ Intercom.displayMessageComposer();
 Intercom.displayMessageComposerWithInitialMessage('Initial Message');
 ```
 
-### Display Latest Conversation 
+### Display Latest Conversation
 ```javascript
 Intercom.displayMessenger();
 ```
